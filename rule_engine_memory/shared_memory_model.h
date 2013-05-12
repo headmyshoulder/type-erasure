@@ -26,17 +26,26 @@ struct shared_memory_model
     typedef shared_memory_model< concept_type , model_type > self_type;
     
     template< typename T >
+    struct enable_type_move_ctor : public
+        std::enable_if< !std::is_same<
+                        typename std::remove_cv< typename std::remove_reference< typename std::remove_cv< T >::type >::type >::type ,
+                        self_type >::value , void* > { };
+    
+    template< typename T >
     struct get_model
     {
-        typedef typename model_type::template apply< T >::type type;
+        typedef typename std::remove_reference< typename model_type::template apply< T >::type >::type type;
     };
     
     shared_memory_model( void ) : m_data() { };
     
     shared_memory_model( const self_type &m ) : m_data( m.m_data ) { }
     
+//     template< typename T >
+//     explicit shared_memory_model( const T &t ) : m_data( std::make_shared< typename get_model< T >::type >( t ) ) { }
+
     template< typename T >
-    explicit shared_memory_model( const T &t ) : m_data( std::make_shared< typename get_model< T >::type >( t ) ) { }
+    explicit shared_memory_model( T &&t ) : m_data( std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) ) ) { }
     
     const self_type& operator=( const self_type &m )
     {

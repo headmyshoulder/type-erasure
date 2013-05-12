@@ -56,11 +56,11 @@ public:
     
     condition( condition &&c ) : m_data( c.m_data ) { cout << "[condition] move ctor " << this << " from " << &c << endl; }
     
-    template< typename T >
-    explicit condition( const T& t ) : m_data( t ) { cout << "[condition] type ctor " << this << " from " << &t << endl; }
+//     template< typename T >
+//     explicit condition( const T& t ) : m_data( t ) { cout << "[condition] type ctor " << this << " from " << &t << endl; }
     
     template< typename T >
-    explicit condition( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr ) : m_data( t ) { cout << "[condition] move type ctor " << this << " from " << &t << endl; }
+    explicit condition( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr ) : m_data( std::forward< T >( t ) ) { cout << "[condition] move type ctor " << this << " from " << &t << endl; }
     
     const condition& operator=( const condition &c )
     {
@@ -93,7 +93,8 @@ private:
     template< class T >
     struct model : concept
     {
-        model( const T &t ) : m_data( t ) { }
+        template< class U >
+        model( U &&u ) : m_data( std::forward< U >( u ) ) { }
         bool evaluate( context_type &c ) { return eval_impl< T , context_type >::eval( m_data , c ); }
         concept* clone( void ) const { return new model< T >( m_data ); }
         T m_data;

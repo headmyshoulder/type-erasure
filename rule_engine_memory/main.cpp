@@ -38,20 +38,22 @@ std::ostream& operator<<( std::ostream &out , const test_class &t )
 int main( int argc , char *argv[] )
 {
     int context = 23;
-
-    cout << "Testing shared memory model" << endl;
+    
+    cout << endl << "Testing shared memory model" << endl;
     {
-        test_class t( 151 );
-
-        condition< shared_memory_model_tag > cond1( t );
-        condition< shared_memory_model_tag > cond2( cond1 );
-        condition< shared_memory_model_tag > cond3( test_class( 12 ) );
+//         test_class t( 151 );
+// 
+//         condition< shared_memory_model_tag > cond1( std::move( t ) );
+//         condition< shared_memory_model_tag > cond2( cond1 );
+//         condition< shared_memory_model_tag > cond3( test_class( 12 ) );
+        condition< shared_memory_model_tag > cond4;
+        condition< shared_memory_model_tag > cond5( std::move( cond4 ) );
         
 //         cond2 = cond1;
 //         cond2 = test_class( 23 );
         
-//         cond1.eval( context );
-//         cond2.eval( context );
+        cond1.eval( context );
+        cond2.eval( context );
         cond3.eval( context );
     }
     cout << "Finished test shared memory model" << endl << endl;
