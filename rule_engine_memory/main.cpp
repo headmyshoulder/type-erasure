@@ -41,20 +41,41 @@ int main( int argc , char *argv[] )
     
     cout << endl << "Testing shared memory model" << endl;
     {
+
 //         test_class t( 151 );
 // 
 //         condition< shared_memory_model_tag > cond1( std::move( t ) );
 //         condition< shared_memory_model_tag > cond2( cond1 );
 //         condition< shared_memory_model_tag > cond3( test_class( 12 ) );
-        condition< shared_memory_model_tag > cond4;
-        condition< shared_memory_model_tag > cond5( std::move( cond4 ) );
-        
+//         condition< shared_memory_model_tag > cond4;
+//         condition< shared_memory_model_tag > cond5( std::move( cond4 ) );
+//         
 //         cond2 = cond1;
 //         cond2 = test_class( 23 );
+
+    //         test_class t2( 56 );
+    //         condition< shared_memory_model_tag > cond6( 32 );
+    //         cond6 = std::move( t2 );
+    //
+
+//         test_class t3( 77 );
+//         condition< shared_memory_model_tag > cond7;
+//         cond7 = t3;
+
+//             condition< shared_memory_model_tag > cond8;
+//             condition< shared_memory_model_tag > cond9;
+//             cond8 = cond9;
         
-        cond1.eval( context );
-        cond2.eval( context );
-        cond3.eval( context );
+//         cond1.eval( context );
+//         cond2.eval( context );
+//         cond3.eval( context );
+
+//         condition< shared_memory_model_tag >::test_type_move_ctor( cond4 );
+//         condition< shared_memory_model_tag >::test_type_move_ctor( std::move( cond4 ) );
+//         condition< shared_memory_model_tag >::test_type_move_ctor( 32 );
+//         int a = 32;
+//         condition< shared_memory_model_tag >::test_type_move_ctor( a );
+//         condition< shared_memory_model_tag >::test_type_move_ctor( std::move( a ) );
     }
     cout << "Finished test shared memory model" << endl << endl;
     

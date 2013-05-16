@@ -8,6 +8,7 @@
 #define SHARED_MEMORY_MODEL_H_INCLUDED
 
 #include "memory_model.h"
+#include <boost/concept_check.hpp>
 
 #include <memory>
 #include <type_traits>
@@ -30,6 +31,13 @@ struct shared_memory_model
         std::enable_if< !std::is_same<
                         typename std::remove_cv< typename std::remove_reference< typename std::remove_cv< T >::type >::type >::type ,
                         self_type >::value , void* > { };
+
+    template< typename T >
+    struct enable_type_move_ctor_void : public
+        std::enable_if< !std::is_same<
+                        typename std::remove_cv< typename std::remove_reference< typename std::remove_cv< T >::type >::type >::type ,
+                        self_type >::value > { };
+
     
     template< typename T >
     struct get_model
@@ -40,23 +48,31 @@ struct shared_memory_model
     shared_memory_model( void ) : m_data() { };
     
     shared_memory_model( const self_type &m ) : m_data( m.m_data ) { }
+
+    shared_memory_model( self_type &&m ) : m_data( m.m_data ) { }
     
 //     template< typename T >
 //     explicit shared_memory_model( const T &t ) : m_data( std::make_shared< typename get_model< T >::type >( t ) ) { }
 
     template< typename T >
-    explicit shared_memory_model( T &&t ) : m_data( std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) ) ) { }
+    explicit shared_memory_model( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr ) : m_data( std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) ) ) { }
     
     const self_type& operator=( const self_type &m )
     {
         m_data = m.m_data;
         return *this;
     }
+
+    const self_type& operator=( self_type &&m )
+    {
+        m_data = m.m_data;
+        return *this;
+    }
     
     template< typename T >
-    const self_type& operator=( const T &t )
+    const self_type& operator=( T &&t )
     {
-        m_data = std::make_shared< typename get_model< T >::type >( t );
+        m_data = std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) );
         return *this;
     }
     

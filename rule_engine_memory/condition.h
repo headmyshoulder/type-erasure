@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include <iostream>
+#include <typeinfo>
 
 using std::cout;
 using std::endl;
@@ -47,6 +48,13 @@ class condition
 public:
     
     typedef int context_type;
+
+    template< typename T >
+    static void test_type_move_ctor( T &&t )
+    {
+        cout << !std::is_same< typename std::remove_reference< typename std::remove_cv< T >::type >::type , self_type >::value << "\t";
+        cout << typeid( T ).name() << endl;
+    }
     
 
     
@@ -55,9 +63,6 @@ public:
     condition( const condition &c ) : m_data( c.m_data ) { cout << "[condition] copy ctor " << this << " from " << &c << endl; }
     
     condition( condition &&c ) : m_data( c.m_data ) { cout << "[condition] move ctor " << this << " from " << &c << endl; }
-    
-//     template< typename T >
-//     explicit condition( const T& t ) : m_data( t ) { cout << "[condition] type ctor " << this << " from " << &t << endl; }
     
     template< typename T >
     explicit condition( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr ) : m_data( std::forward< T >( t ) ) { cout << "[condition] move type ctor " << this << " from " << &t << endl; }
@@ -68,12 +73,19 @@ public:
         m_data = c.m_data;
         return *this;
     }
+
+    const condition& operator=( condition &&c )
+    {
+        cout << "[condition] move " << this << " from " << &c << endl;
+        m_data = c.m_data;
+        return *this;
+    }
     
     template< typename T >
-    const condition& operator=( const T &t )
+    const condition& operator=( T &&t )
     {
-        cout << "[condition] type copy " << this << " from " << &t << endl;
-        m_data = t;
+        cout << "[condition] universal type move " << this << " from " << &t << endl;
+        m_data = std::forward< T >( t );
         return *this;
     }
      
