@@ -45,26 +45,54 @@ struct shared_memory_model
         typedef typename std::remove_reference< typename model_type::template apply< T >::type >::type type;
     };
     
-    shared_memory_model( void ) : m_data() { };
+    shared_memory_model( void ) : m_data()
+    {
+        cout << "[shared_memory_model] : ctor " << this << endl;
+    };
     
-    shared_memory_model( const self_type &m ) : m_data( m.m_data ) { }
+    shared_memory_model( const self_type &m ) : m_data( m.m_data )
+    {
+        cout << "[shared_memory_model] : copy ctor " << this << " from " << &m << endl;
+    }
 
-    shared_memory_model( self_type &&m ) : m_data( m.m_data ) { }
+    shared_memory_model( self_type &&m ) : m_data( m.m_data )
+    {
+        cout << "[shared_memory_model] : move ctor " << this << " from " << &m << endl;
+    }
+
+    ~shared_memory_model( void )
+    {
+        cout << "[shared_memory_model] : dtor " << this << endl;
+    }
     
 //     template< typename T >
 //     explicit shared_memory_model( const T &t ) : m_data( std::make_shared< typename get_model< T >::type >( t ) ) { }
 
     template< typename T >
-    explicit shared_memory_model( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr ) : m_data( std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) ) ) { }
+    explicit shared_memory_model( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr )
+    : m_data( std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) ) )
+    {
+        cout << "[shared_memory_model] : move type ctor " << this << " from " << &t << endl;
+        cout << "[shared_memory_model] : typenames " << typeid( typename get_model< T >::type ).name() << endl;
+        auto xxxx = std::forward< T >( t );
+        cout << "[shared_memory_model] : typenames2 " << typeid( xxxx ).name() << " " << typeid( T ).name() << endl;
+        cout << "[shared_memory_model] ref(T) : " << std::is_reference< T >::value << " " << std::is_rvalue_reference< T >::value << endl;
+        typedef decltype( std::forward< T >( t ) ) xyz_type;
+        cout << "[shared_memory_model] ref(XYZ) : " << std::is_reference< xyz_type >::value << " " << std::is_rvalue_reference< xyz_type >::value << endl;
+        cout << endl;
+
+    }
     
     const self_type& operator=( const self_type &m )
     {
+        cout << "[shared_memory_model] : copy " << this << " from " << &m << endl;
         m_data = m.m_data;
         return *this;
     }
 
     const self_type& operator=( self_type &&m )
     {
+        cout << "[shared_memory_model] : move " << this << " from " << &m << endl;
         m_data = m.m_data;
         return *this;
     }
@@ -72,6 +100,7 @@ struct shared_memory_model
     template< typename T >
     const self_type& operator=( T &&t )
     {
+        cout << "[shared_memory_model] : type move " << this << " from " << &t << endl;
         m_data = std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) );
         return *this;
     }
