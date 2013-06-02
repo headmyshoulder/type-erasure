@@ -109,13 +109,19 @@ public:
     template< class T >
     struct model : public concept
     {
+        model( void ) = delete;
+        model( model const& ) = delete;
+        
         template< class U >
         model( U &&u ) : m_data( std::forward< U >( u ) )
         {
             cout << "[model] : move type ctor " << this << " from " << &u << std::endl;
-            cout << "[model] ref(U) : " << std::is_reference< U >::value << " " << std::is_rvalue_reference< T >::value << std::endl;
-            typedef decltype( std::forward< U >( u ) ) xyz_type;
-            cout << "[model] ref(XYZ) : " << std::is_reference< xyz_type >::value << " " << std::is_rvalue_reference< xyz_type >::value << endl;
+//             cout << "[model] : type of T = " << typeid( T ).name() << endl;
+//             cout << "[model] : type of U = " << typeid( U ).name() << endl;
+//             cout << "[model] : lvref(T) = " << std::is_reference< T >::value << " , rvref(T) = " << std::is_rvalue_reference< T >::value << std::endl;
+//             cout << "[model] : lvref(U) = " << std::is_reference< U >::value << " , rvref(U) = " << std::is_rvalue_reference< U >::value << std::endl;
+//             typedef decltype( std::forward< U >( u ) ) xyz_type;
+//             cout << "[model] ref(XYZ) : " << std::is_reference< xyz_type >::value << " " << std::is_rvalue_reference< xyz_type >::value << endl;
 
         }
         bool evaluate( context_type &c ) { return eval_impl< T , context_type >::eval( m_data , c ); }
@@ -126,7 +132,7 @@ public:
     struct model_getter
     {
         template< class T >
-        struct apply { typedef model< T > type; };
+        struct apply { typedef model< typename std::remove_reference< typename std::remove_cv< T >::type >::type > type; };
     };
     
     

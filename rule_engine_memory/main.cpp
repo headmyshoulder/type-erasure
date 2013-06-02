@@ -30,7 +30,7 @@ struct test_class
 
 std::ostream& operator<<( std::ostream &out , const test_class &t )
 {
-    out << "test_class with value " << t.value;
+    out << "test_class " << &t << " with value " << t.value;
 }
 
 
@@ -49,6 +49,7 @@ int main( int argc , char *argv[] )
     }
     cout << "[TESTING SHARED DEFAULT CONSTRUCTOR - FINISHED]" << endl << endl;
 
+    
     cout << "[TESTING SHARED TYPE COPY CONSTRUCTOR]" << endl;
     {
         test_class t( 151 );
@@ -57,14 +58,14 @@ int main( int argc , char *argv[] )
     }
     cout << "[TESTING SHARED TYPE COPY CONSTRUCTOR - FINISHED]" << endl << endl;
 
-//     cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR]" << endl;
-//     {
-//         test_class t( 151 );
-//         condition< shared_memory_model_tag > cond( std::move( t ) );
-//         cond.eval( context );
-//     }
-//     cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR - FINISHED]" << endl << endl;
-// 
+    cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR]" << endl;
+    {
+        test_class t( 151 );
+        condition< shared_memory_model_tag > cond( std::move( t ) );
+        cond.eval( context );
+    }
+    cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR - FINISHED]" << endl << endl;
+ 
 //     cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR II]" << endl;
 //     {
 //         condition< shared_memory_model_tag > cond( test_class( 152 ) );
@@ -122,7 +123,7 @@ int main( int argc , char *argv[] )
 //         condition< shared_memory_model_tag >::test_type_move_ctor( a );
 //         condition< shared_memory_model_tag >::test_type_move_ctor( std::move( a ) );
 //    }
-    cout << "Finished test shared memory model" << endl << endl;
+//     cout << "Finished test shared memory model" << endl << endl;
     
     
     
@@ -163,14 +164,27 @@ int main( int argc , char *argv[] )
 //     condition< unique_memory_model_tag > cond3;
 
 
-    cout << "[TESTING condition::model< T >]" << endl;
-    {
-        typedef condition< shared_memory_model_tag >::model< test_class > model_type;
-        test_class t1( 12 ) , t2( 13 );
-        model_type m1( t1 );
-        model_type m2( std::move( t2 ) );
-    }
-    cout << "[TESTING condition::model< T > - FINISHED]" << endl << endl;
+    
+//     cout << "[TESTING condition::model< T > copy ctor]" << endl;
+//     {
+//         typedef condition< shared_memory_model_tag >::model< test_class > model_type;
+//         test_class t1( 12 );
+//         model_type m1( t1 );
+//     }
+//     cout << "[TESTING condition::model< T > copy ctor - FINISHED]" << endl << endl;
+    
+
+    
+    
+//     cout << "[TESTING condition::model< T > move ctor]" << endl;
+//     {
+//         typedef condition< shared_memory_model_tag >::model< test_class > model_type;
+//         test_class t1( 12 );
+//         model_type m1( std::move( t1 ) );
+//     }
+//     cout << "[TESTING condition::model< T > move ctor - FINISHED]" << endl << endl;
+
+
     
     return 0;
 }

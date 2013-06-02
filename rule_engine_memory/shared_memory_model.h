@@ -42,7 +42,7 @@ struct shared_memory_model
     template< typename T >
     struct get_model
     {
-        typedef typename std::remove_reference< typename model_type::template apply< T >::type >::type type;
+        typedef typename std::remove_cv< typename std::remove_reference< typename model_type::template apply< T >::type >::type >::type type;
     };
     
     shared_memory_model( void ) : m_data()
@@ -73,13 +73,12 @@ struct shared_memory_model
     : m_data( std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) ) )
     {
         cout << "[shared_memory_model] : move type ctor " << this << " from " << &t << endl;
-        cout << "[shared_memory_model] : typenames " << typeid( typename get_model< T >::type ).name() << endl;
-        auto xxxx = std::forward< T >( t );
-        cout << "[shared_memory_model] : typenames2 " << typeid( xxxx ).name() << " " << typeid( T ).name() << endl;
-        cout << "[shared_memory_model] ref(T) : " << std::is_reference< T >::value << " " << std::is_rvalue_reference< T >::value << endl;
-        typedef decltype( std::forward< T >( t ) ) xyz_type;
-        cout << "[shared_memory_model] ref(XYZ) : " << std::is_reference< xyz_type >::value << " " << std::is_rvalue_reference< xyz_type >::value << endl;
-        cout << endl;
+//         auto xxxx = std::forward< T >( t );
+//         cout << "[shared_memory_model] : typenames2 " << typeid( xxxx ).name() << " " << typeid( T ).name() << endl;
+//         cout << "[shared_memory_model] ref(T) : " << std::is_reference< T >::value << " " << std::is_rvalue_reference< T >::value << endl;
+//         typedef decltype( std::forward< T >( t ) ) xyz_type;
+//         cout << "[shared_memory_model] ref(XYZ) : " << std::is_reference< xyz_type >::value << " " << std::is_rvalue_reference< xyz_type >::value << endl;
+//         cout << endl;
 
     }
     
