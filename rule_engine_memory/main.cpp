@@ -66,22 +66,22 @@ int main( int argc , char *argv[] )
     }
     cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR - FINISHED]" << endl << endl;
  
-//     cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR II]" << endl;
-//     {
-//         condition< shared_memory_model_tag > cond( test_class( 152 ) );
-//         cond.eval( context );
-//     }
-//     cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR II - FINISHED]" << endl << endl;
-// 
-//     cout << "[TESTING SHARED COPY CONSTRUCTOR]" << endl;
-//     {
-//         condition< shared_memory_model_tag > cond1( test_class( 152 ) );
-//         condition< shared_memory_model_tag > cond2( cond1 );
-//         cond1.eval( context );
-//         cond2.eval( context );
-//     }
-//     cout << "[TESTING SHARED COPY CONSTRUCTOR - FINISHED]" << endl << endl;
-// 
+    cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR II]" << endl;
+    {
+        condition< shared_memory_model_tag > cond( test_class( 152 ) );
+        cond.eval( context );
+    }
+    cout << "[TESTING SHARED TYPE MOVE CONSTRUCTOR II - FINISHED]" << endl << endl;
+
+    cout << "[TESTING SHARED COPY CONSTRUCTOR]" << endl;
+    {
+        condition< shared_memory_model_tag > cond1( test_class( 152 ) );
+        condition< shared_memory_model_tag > cond2( cond1 );
+        cond1.eval( context );
+        cond2.eval( context );
+    }
+    cout << "[TESTING SHARED COPY CONSTRUCTOR - FINISHED]" << endl << endl;
+
 //     cout << "[TESTING SHARED MOVE CONSTRUCTOR]" << endl;
 //     {
 //         condition< shared_memory_model_tag > cond1( test_class( 152 ) );
