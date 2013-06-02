@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include <iostream>
+#include <typeinfo>
 
 using std::cout;
 using std::endl;
@@ -20,7 +21,7 @@ using std::endl;
 template< typename T , typename Concept >
 struct eval_impl
 {
-    static bool eval( const T &t , Concept &c ) { std::cout << "huhu from " << t << " argument is " << c << std::endl; }
+    static bool eval( const T &t , Concept &c ) { std::cout << "[HUHUHUHU] from " << t << " argument is " << c << std::endl; }
 };
 
 
@@ -30,6 +31,8 @@ struct eval_impl
 template< typename MemoryModelTag >
 class condition
 {
+public:
+    
     struct model_getter;
     struct concept;
     
@@ -40,13 +43,20 @@ class condition
     template< class T >
     struct enable_type_move_ctor : public
         std::enable_if< !std::is_same<
-                            typename std::remove_cv< typename std::remove_reference< typename std::remove_cv< T >::type >::type >::type ,
+                            typename std::remove_reference< typename std::remove_cv< T >::type >::type ,
                             self_type >::value , void* > { };
                            
     
 public:
     
     typedef int context_type;
+
+    template< typename T >
+    static void test_type_move_ctor( T &&t )
+    {
+        cout << !std::is_same< typename std::remove_reference< typename std::remove_cv< T >::type >::type , self_type >::value << "\t";
+        cout << typeid( T ).name() << endl;
+    }
     
 
     
@@ -56,11 +66,10 @@ public:
     
     condition( condition &&c ) : m_data( c.m_data ) { cout << "[condition] move ctor " << this << " from " << &c << endl; }
     
-//     template< typename T >
-//     explicit condition( const T& t ) : m_data( t ) { cout << "[condition] type ctor " << this << " from " << &t << endl; }
-    
     template< typename T >
     explicit condition( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr ) : m_data( std::forward< T >( t ) ) { cout << "[condition] move type ctor " << this << " from " << &t << endl; }
+
+    ~condition( void ) { cout << "[condition] dtor " << this << endl; }
     
     const condition& operator=( const condition &c )
     {
@@ -68,21 +77,28 @@ public:
         m_data = c.m_data;
         return *this;
     }
-    
-    template< typename T >
-    const condition& operator=( const T &t )
+
+    const condition& operator=( condition &&c )
     {
-        cout << "[condition] type copy " << this << " from " << &t << endl;
-        m_data = t;
+        cout << "[condition] move " << this << " from " << &c << endl;
+        m_data = c.m_data;
         return *this;
     }
+    
+//     template< typename T >
+//     const condition& operator=( T &&t )
+//     {
+//         cout << "[condition] universal type move " << this << " from " << &t << endl;
+//         m_data = std::forward< T >( t );
+//         return *this;
+//     }
      
 
 
 
     bool eval( context_type &c ) { return m_data.model().evaluate( c ); }
 
-private:
+// private:
 
     struct concept
     {
@@ -91,10 +107,17 @@ private:
     };
 
     template< class T >
-    struct model : concept
+    struct model : public concept
     {
         template< class U >
-        model( U &&u ) : m_data( std::forward< U >( u ) ) { }
+        model( U &&u ) : m_data( std::forward< U >( u ) )
+        {
+            cout << "[model] : move type ctor " << this << " from " << &u << std::endl;
+            cout << "[model] ref(U) : " << std::is_reference< U >::value << " " << std::is_rvalue_reference< T >::value << std::endl;
+            typedef decltype( std::forward< U >( u ) ) xyz_type;
+            cout << "[model] ref(XYZ) : " << std::is_reference< xyz_type >::value << " " << std::is_rvalue_reference< xyz_type >::value << endl;
+
+        }
         bool evaluate( context_type &c ) { return eval_impl< T , context_type >::eval( m_data , c ); }
         concept* clone( void ) const { return new model< T >( m_data ); }
         T m_data;
