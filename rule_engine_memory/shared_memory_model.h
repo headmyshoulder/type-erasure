@@ -8,14 +8,19 @@
 #define SHARED_MEMORY_MODEL_H_INCLUDED
 
 #include "memory_model.h"
-#include <boost/concept_check.hpp>
+#include "enable_move_type.h"
 
 #include <memory>
 #include <type_traits>
 
+#if DEBUG_SHARED_MEMORY_MODEL
+
 #include <iostream>
+
 using std::cout;
 using std::endl;
+
+#endif 
 
 struct shared_memory_model_tag {};
 
@@ -27,79 +32,74 @@ struct shared_memory_model
     typedef shared_memory_model< concept_type , model_type > self_type;
     
     template< typename T >
-    struct enable_type_move_ctor : public
-        std::enable_if< !std::is_same<
-                        typename std::remove_cv< typename std::remove_reference< typename std::remove_cv< T >::type >::type >::type ,
-                        self_type >::value , void* > { };
-
-    template< typename T >
-    struct enable_type_move_ctor_void : public
-        std::enable_if< !std::is_same<
-                        typename std::remove_cv< typename std::remove_reference< typename std::remove_cv< T >::type >::type >::type ,
-                        self_type >::value > { };
-
-    
-    template< typename T >
     struct get_model
     {
         typedef typename std::remove_cv< typename std::remove_reference< typename model_type::template apply< T >::type >::type >::type type;
     };
     
-    shared_memory_model( void ) : m_data()
+    shared_memory_model( void )
+    : m_data()
     {
+#if DEBUG_SHARED_MEMORY_MODEL
         cout << "[shared_memory_model] : ctor " << this << endl;
+#endif
     };
     
     shared_memory_model( const self_type &m ) : m_data( m.m_data )
     {
+#if DEBUG_SHARED_MEMORY_MODEL
         cout << "[shared_memory_model] : copy ctor " << this << " from " << &m << endl;
+#endif
     }
 
     shared_memory_model( self_type &&m ) : m_data( m.m_data )
     {
+#if DEBUG_SHARED_MEMORY_MODEL
         cout << "[shared_memory_model] : move ctor " << this << " from " << &m << endl;
+#endif
     }
 
-    ~shared_memory_model( void )
-    {
-        cout << "[shared_memory_model] : dtor " << this << endl;
-    }
-    
-//     template< typename T >
-//     explicit shared_memory_model( const T &t ) : m_data( std::make_shared< typename get_model< T >::type >( t ) ) { }
-
-    template< typename T >
-    explicit shared_memory_model( T &&t , typename enable_type_move_ctor< T >::type dummy = nullptr )
+    template< typename T , typename Enabler = typename enable_move_type< T , self_type >::type >
+    explicit shared_memory_model( T &&t )
     : m_data( std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) ) )
     {
+#if DEBUG_SHARED_MEMORY_MODEL        
         cout << "[shared_memory_model] : move type ctor " << this << " from " << &t << endl;
-//         auto xxxx = std::forward< T >( t );
-//         cout << "[shared_memory_model] : typenames2 " << typeid( xxxx ).name() << " " << typeid( T ).name() << endl;
-//         cout << "[shared_memory_model] ref(T) : " << std::is_reference< T >::value << " " << std::is_rvalue_reference< T >::value << endl;
-//         typedef decltype( std::forward< T >( t ) ) xyz_type;
-//         cout << "[shared_memory_model] ref(XYZ) : " << std::is_reference< xyz_type >::value << " " << std::is_rvalue_reference< xyz_type >::value << endl;
-//         cout << endl;
-
+#endif        
     }
     
-    const self_type& operator=( const self_type &m )
+    ~shared_memory_model( void )
     {
+#if DEBUG_SHARED_MEMORY_MODEL
+        cout << "[shared_memory_model] : dtor " << this << endl;
+#endif
+    }
+    
+    
+    self_type& operator=( const self_type &m )
+    {
+#if DEBUG_SHARED_MEMORY_MODEL        
         cout << "[shared_memory_model] : copy " << this << " from " << &m << endl;
+#endif
         m_data = m.m_data;
         return *this;
     }
 
-    const self_type& operator=( self_type &&m )
+    self_type& operator=( self_type &&m )
     {
+#if DEBUG_SHARED_MEMORY_MODEL        
         cout << "[shared_memory_model] : move " << this << " from " << &m << endl;
+#endif
         m_data = m.m_data;
         return *this;
     }
     
     template< typename T >
-    const self_type& operator=( T &&t )
+    self_type& operator=( T &&t )
     {
+#if DEBUG_SHARED_MEMORY_MODEL
         cout << "[shared_memory_model] : type move " << this << " from " << &t << endl;
+#endif
         m_data = std::make_shared< typename get_model< T >::type >( std::forward< T >( t ) );
         return *this;
     }
